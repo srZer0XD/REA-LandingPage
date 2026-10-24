@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="REA — Reverse Engineer Anything. Comprende cómo funcionan los sistemas, paso a paso.">
+  <title>REA — Reverse Engineer Anything</title>
+  <style>
+    :root {
+      --navy: #07152f;
+      --navy-2: #0b2145;
+      --blue: #2878ff;
+      --cyan: #63e5ff;
+      --pale: #eaf7ff;
+      --white: #ffffff;
+      --muted: #a8bad7;
+      --ink: #10213e;
+      --line: rgba(133, 185, 255, .2);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--white);
+      background: var(--navy);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(7, 21, 47, .82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; min-height: 76px; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 850; letter-spacing: .08em; }
+    .brand-mark {
+      display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px;
+      color: var(--navy); font-size: 1rem; background: linear-gradient(135deg, var(--cyan), #5b8dff);
+      box-shadow: 0 0 26px rgba(99,229,255,.22);
+    }
+    .brand small { display: block; color: var(--muted); font-size: .63rem; letter-spacing: .14em; font-weight: 600; }
+    .nav-links { display: flex; align-items: center; gap: 28px; color: #d1def2; font-size: .92rem; }
+    .nav-links a:hover { color: var(--cyan); }
+    .nav-cta, .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 750; cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .nav-cta, .btn-primary { color: #06152d; background: linear-gradient(100deg, var(--cyan), #8bb9ff); box-shadow: 0 10px 30px rgba(40,120,255,.2); }
+    .nav-cta:hover, .btn:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(40,120,255,.28); }
+    .btn-secondary { color: white; background: rgba(255,255,255,.06); border: 1px solid rgba(173,205,255,.25); }
+    .hero {
+      position: relative; overflow: hidden; padding: 100px 0 88px;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(40,120,255,.23), transparent 36%),
+        radial-gradient(ellipse at 10% 90%, rgba(99,229,255,.10), transparent 32%),
+        var(--navy);
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0; opacity: .18; pointer-events: none;
+      background-image: linear-gradient(rgba(112,174,255,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(112,174,255,.15) 1px, transparent 1px);
+      background-size: 48px 48px; mask-image: linear-gradient(to bottom, black, transparent 92%);
+    }
+    .hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 58px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--cyan); text-transform: uppercase; letter-spacing: .16em; font-size: .76rem; font-weight: 800; }
+    .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 5px rgba(99,229,255,.12); }
+    h1 { margin: 20px 0; font-size: clamp(2.7rem, 5.3vw, 5rem); line-height: 1.04; letter-spacing: -.055em; }
+    .gradient-text { color: transparent; background: linear-gradient(90deg, var(--cyan), #8bb9ff 75%); -webkit-background-clip: text; background-clip: text; }
+    .hero-copy { max-width: 580px; color: #c0cee5; font-size: 1.12rem; }
+    .hero-copy strong { color: white; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 30px; }
+    .micro-note { margin-top: 18px; color: #8298bb; font-size: .82rem; }
+    .visual { min-height: 420px; position: relative; display: grid; place-items: center; }
+    .orb { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(99,229,255,.2), rgba(40,120,255,.08) 42%, transparent 70%); filter: blur(2px); }
+    .diagram {
+      width: min(100%, 460px); position: relative; padding: 25px; border: 1px solid rgba(139,185,255,.3);
+      border-radius: 24px; background: linear-gradient(145deg, rgba(19,47,88,.88), rgba(8,23,50,.88));
+      box-shadow: 0 30px 80px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.05);
+      transform: perspective(900px) rotateY(-5deg) rotateX(2deg);
+    }
+    .window-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--line); color: #b9cce9; font-size: .78rem; }
+    .dots { display: flex; gap: 5px; } .dots i { display: block; width: 7px; height: 7px; border-radius: 50%; background: #6a8cb9; }
+    .diagram-title { margin: 20px 0 15px; color: #f4f9ff; font-size: 1rem; font-weight: 750; }
+    .flow { display: grid; grid-template-columns: 1fr 28px 1fr; align-items: center; gap: 8px; }
+    .flow-box { padding: 14px 10px; text-align: center; border: 1px solid rgba(99,229,255,.28); border-radius: 13px; background: rgba(40,120,255,.09); }
+    .flow-box b { display: block; font-size: .88rem; color: #eaf7ff; }
+    .flow-box span { display: block; margin-top: 4px; font-size: .7rem; color: #93accf; }
+    .arrow { text-align: center; color: var(--cyan); font-size: 1.2rem; }
+    .flow-down { text-align: center; color: var(--cyan); padding: 10px; }
+    .flow-wide { padding: 15px; border: 1px dashed rgba(99,229,255,.45); border-radius: 13px; text-align: center; background: rgba(99,229,255,.05); }
+    .flow-wide b { color: var(--cyan); display: block; font-size: .9rem; }
+    .flow-wide span { font-size: .75rem; color: #9db2d2; }
+    .code-lines { display: grid; gap: 8px; margin-top: 19px; }
+    .code-line { height: 6px; border-radius: 10px; background: linear-gradient(90deg, rgba(99,229,255,.65), rgba(40,120,255,.18)); }
+    .code-line:nth-child(2) { width: 76%; } .code-line:nth-child(3) { width: 88%; } .code-line:nth-child(4) { width: 54%; }
+    .float-tag { position: absolute; padding: 10px 14px; border: 1px solid rgba(99,229,255,.25); border-radius: 12px; background: #0d2850; color: #dffaff; font-size: .78rem; box-shadow: 0 12px 30px rgba(0,0,0,.2); }
+    .tag-one { top: 40px; right: -3px; } .tag-two { bottom: 35px; left: -8px; }
+    section { padding: 88px 0; }
+    .section-light { color: var(--ink); background: #f5faff; }
+    .section-heading { max-width: 720px; margin: 0 auto 46px; text-align: center; }
+    .section-kicker { color: #2878ff; font-size: .75rem; letter-spacing: .16em; font-weight: 850; text-transform: uppercase; }
+    h2 { margin: 12px 0 14px; font-size: clamp(2rem, 3.5vw, 3.1rem); line-height: 1.12; letter-spacing: -.04em; }
+    .section-heading p { margin: 0; color: #60728e; font-size: 1.04rem; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { padding: 26px; border: 1px solid #dceaf8; border-radius: 18px; background: white; box-shadow: 0 12px 30px rgba(23,67,120,.045); }
+    .card-icon { display: grid; place-items: center; width: 45px; height: 45px; border-radius: 13px; margin-bottom: 20px; color: #1769df; background: #e5f4ff; font-size: 1.25rem; font-weight: 900; }
+    .card h3 { margin: 0 0 9px; font-size: 1.13rem; }
+    .card p { margin: 0; color: #62748e; font-size: .94rem; }
+    .dark-section { background: linear-gradient(180deg, #0a1d3c, #07152f); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; counter-reset: step; }
+    .step { position: relative; padding: 24px 20px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255,255,255,.035); counter-increment: step; }
+    .step::before { content: "0" counter(step); display: block; color: var(--cyan); font-size: .78rem; font-weight: 850; letter-spacing: .13em; margin-bottom: 23px; }
+    .step h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    .step p { margin: 0; color: #a9bbd7; font-size: .9rem; }
+    .tech-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 54px; align-items: center; }
+    .tech-copy p { color: #b5c5de; }
+    .tech-copy .section-kicker { color: var(--cyan); }
+    .tech-panel { border: 1px solid var(--line); border-radius: 20px; padding: 25px; background: rgba(255,255,255,.035); }
+    .tech-row { display: grid; grid-template-columns: 120px 1fr; gap: 18px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+    .tech-row:last-child { border-bottom: 0; }
+    .tech-row b { color: var(--cyan); font-size: .87rem; }
+    .tech-row span { color: #bdcce1; font-size: .9rem; }
+    .notice { margin-top: 18px; padding: 14px 16px; border-left: 3px solid var(--cyan); border-radius: 0 10px 10px 0; background: rgba(99,229,255,.07); color: #c7d8ee; font-size: .88rem; }
+    .cta-section { padding: 72px 0; background: linear-gradient(110deg, #1262db, #0e3b86 60%, #0b2856); }
+    .cta-box { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+    .cta-box h2 { margin: 0 0 10px; font-size: clamp(1.8rem, 3vw, 2.6rem); }
+    .cta-box p { margin: 0; color: #d2e7ff; max-width: 640px; }
+    .cta-box .btn { flex-shrink: 0; background: white; color: #0a3271; }
+    footer { padding: 28px 0; background: #051127; color: #91a5c5; font-size: .82rem; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+    .footer-inner strong { color: white; }
+    @media (max-width: 850px) {
+      .hero-grid, .tech-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 72px; }
+      .visual { min-height: 380px; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .tech-grid { gap: 28px; }
+      .nav-links { gap: 15px; }
+    }
+    @media (max-width: 600px) {
+      .container { width: min(100% - 30px, 1120px); }
+      .nav { min-height: 66px; }
+      .nav-links { display: none; }
+      .nav-cta { padding: 10px 13px; font-size: .82rem; }
+      .hero { padding: 58px 0 56px; }
+      .hero-grid { gap: 28px; }
+      .hero-copy { font-size: 1rem; }
+      .visual { min-height: 330px; }
+      .diagram { padding: 17px; transform: none; }
+      .tag-one { right: -2px; top: 8px; } .tag-two { left: -3px; bottom: 3px; }
+      section { padding: 64px 0; }
+      .cards, .steps { grid-template-columns: 1fr; }
+      .cta-box, .footer-inner { align-items: flex-start; flex-direction: column; }
+      .tech-row { grid-template-columns: 1fr; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#inicio" aria-label="REA, inicio">
+        <span class="brand-mark">R↗</span>
+        <span>REA<small>REVERSE ENGINEER ANYTHING</small></span>
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="#que-es">¿Qué es?</a>
+        <a href="#proceso">Cómo funciona</a>
+        <a href="#tecnico">En detalle</a>
+      </nav>
+      <a class="nav-cta" href="#explorar">Explorar REA <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="pulse"></span> Curiosidad convertida en conocimiento</div>
+          <h1>No te quedes con el <span class="gradient-text">“cómo funciona”.</span><br>Descubre el porqué.</h1>
+          <p class="hero-copy"><strong>REA (Reverse Engineer Anything)</strong> parte de una idea sencilla: observar algo que ya existe, entender sus piezas y descubrir cómo trabajan juntas. Es una forma de aprender de la tecnología desde dentro, en lugar de verla como una caja negra.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#que-es">Descubrir REA <span aria-hidden="true">→</span></a>
+            <a class="btn btn-secondary" href="#proceso">Ver el proceso</a>
+          </div>
+          <p class="micro-note">Observa · Analiza · Comprende · Construye</p>
+        </div>
+        <div class="visual" aria-label="Ilustración conceptual de un sistema analizado por partes">
+          <div class="orb"></div>
+          <div class="diagram">
+            <div class="window-top"><span>REA / SYSTEM VIEW</span><span class="dots"><i></i><i></i><i></i></span></div>
+            <div class="diagram-title">De una caja negra a un mapa comprensible</div>
+            <div class="flow">
+              <div class="flow-box"><b>Entrada</b><span>Datos / señales</span></div>
+              <div class="arrow">→</div>
+              <div class="flow-box"><b>Proceso</b><span>Reglas / lógica</span></div>
+            </div>
+            <div class="flow-down">↓</div>
+            <div class="flow-wide"><b>Analizar las conexiones</b><span>Componentes · Comportamiento · Resultados</span></div>
+            <div class="code-lines"><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div><div class="code-line"></div></div>
+          </div>
+          <div class="float-tag tag-one">⌘ Pensamiento analítico</div>
+          <div class="float-tag tag-two">◎ Comprender por capas</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-light" id="que-es">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-kicker">Primero, lo esencial</div>
+          <h2>¿Qué significa REA?</h2>
+          <p>Imagina que tienes una aplicación, un dispositivo o un programa y quieres saber qué ocurre detrás de la pantalla. REA es el enfoque de investigar sus partes para construir una explicación de cómo funciona.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <div class="card-icon">⌕</div>
+            <h3>Observar lo que hace</h3>
+            <p>Empieza por las entradas, las salidas y el comportamiento visible. ¿Qué cambia cuando haces algo diferente?</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">◇</div>
+            <h3>Separar las piezas</h3>
+            <p>Divide el problema en partes pequeñas: componentes, datos, reglas, conexiones y dependencias.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">↗</div>
+            <h3>Entender y reconstruir</h3>
+            <p>Relaciona las pistas, crea un modelo de funcionamiento y comprueba si tu explicación coincide con lo que observas.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark-section" id="proceso">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-kicker">Un método paso a paso</div>
+          <h2>De la pregunta a la comprensión</h2>
+          <p style="color:#a9bbd7">No necesitas saberlo todo desde el principio. Lo importante es avanzar con preguntas claras y comprobar tus ideas.</p>
+        </div>
+        <div class="steps">
+          <article class="step"><h3>Define el objetivo</h3><p>Decide qué quieres comprender y qué información tienes disponible.</p></article>
+          <article class="step"><h3>Reúne pistas</h3><p>Observa el comportamiento, revisa documentación y estudia los elementos accesibles.</p></article>
+          <article class="step"><h3>Formula una hipótesis</h3><p>Propón cómo podrían relacionarse las piezas y qué explica cada resultado.</p></article>
+          <article class="step"><h3>Comprueba tu modelo</h3><p>Haz pruebas seguras, compara resultados y corrige lo que no encaje.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark-section" id="tecnico" style="padding-top: 20px;">
+      <div class="container tech-grid">
+        <div class="tech-copy">
+          <div class="section-kicker">Cuando vamos más a fondo</div>
+          <h2>La mirada técnica</h2>
+          <p>En ingeniería, este enfoque se relaciona con la <strong>ingeniería inversa</strong>: analizar un producto, sistema o artefacto existente para inferir su estructura, sus componentes o su lógica de funcionamiento.</p>
+          <p>El nivel de análisis depende del objeto. Puede ir desde dibujar el flujo de una aplicación hasta estudiar protocolos, formatos de archivos o componentes de software.</p>
+          <div class="notice">REA se presenta aquí como un enfoque general de análisis, no como una herramienta única ni como una garantía de que todo sistema pueda reconstruirse por completo.</div>
+        </div>
+        <div class="tech-panel">
+          <div class="tech-row"><b>Entradas y salidas</b><span>Identificar datos recibidos, resultados producidos y condiciones que cambian el comportamiento.</span></div>
+          <div class="tech-row"><b>Arquitectura</b><span>Inferir módulos, dependencias, interfaces y posibles límites entre componentes.</span></div>
+          <div class="tech-row"><b>Comportamiento</b><span>Diseñar pruebas controladas para comparar hipótesis con resultados observables.</span></div>
+          <div class="tech-row"><b>Documentación</b><span>Convertir los hallazgos en diagramas, notas técnicas, modelos o una implementación compatible.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-light" id="explorar">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-kicker">¿Por qué importa?</div>
+          <h2>Aprender a mirar más allá de la superficie</h2>
+          <p>REA ayuda a desarrollar una mentalidad útil para estudiar, resolver problemas y diseñar mejores soluciones.</p>
+        </div>
+        <div class="cards">
+          <article class="card"><div class="card-icon">⌘</div><h3>Aprendizaje más profundo</h3><p>En vez de memorizar pasos, buscas las razones que explican cómo funciona algo.</p></article>
+          <article class="card"><div class="card-icon">⚙</div><h3>Solución de problemas</h3><p>Comprender las relaciones entre componentes facilita encontrar errores y sus posibles causas.</p></article>
+          <article class="card"><div class="card-icon">✧</div><h3>Diseño e innovación</h3><p>Estudiar soluciones existentes puede inspirar ideas nuevas y decisiones de diseño mejor fundamentadas.</p></article>
+        </div>
+        <p style="text-align:center;color:#647792;font-size:.85rem;margin:25px auto 0;max-width:760px">La ingeniería inversa debe realizarse de forma responsable: respeta la privacidad, las licencias, la propiedad intelectual y las autorizaciones aplicables.</p>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container cta-box">
+        <div>
+          <h2>Todo sistema deja pistas.</h2>
+          <p>Haz mejores preguntas, conecta las piezas y transforma lo desconocido en algo que puedas explicar.</p>
+        </div>
+        <a class="btn" href="#inicio">Volver al inicio ↑</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div><strong>REA</strong> — Reverse Engineer Anything</div>
+      <div>Comprender cómo funciona. Pensar cómo mejorarlo.</div>
+    </div>
+  </footer>
+</body>
+</html>
